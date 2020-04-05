@@ -39,72 +39,103 @@ SHADOW_CHARSET_SUFFIX = '_shadow'
 #### Game_Player
 
 1. **Search**: `if not event.jumping? and event.over_trigger?`
+
    **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+
 1. **Find both occurrences of**: `if not event.jumping? and !event.over_trigger?`
+
    **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+
 1. **Search just in method named check_event_trigger_touch**: `if not event.jumping? and not event.over_trigger?`
+
    **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+
 1. **Search just in method called pbTriggeredTrainerEvents**: `if not event.jumping? and not event.over_trigger?`
+
    **Replace with**: `if not event.jumping? and not event.over_trigger? and not $Trainer.hidden?`
+
 1. **Search**: `ret=meta[1] if !ret || ret==""`
+
    **Add below**: `ret += SHADOW_CHARSET_SUFFIX if trainer.hidden?`
+
 1. **Search**: `return true if pbGetMetadata(mapid,MetadataBicycleAlways)`
+
    **Add below**: `val = !$Trainer.hidden?`
 
 #### Game_Player_Visuals
 
 1. **Search**: `pbMapInterpreterRunning?`
+
    **Replace with**: `pbMapInterpreterRunning? || $Trainer.hidden?`
+
 1. **Search**: `return @defaultCharacterName if @defaultCharacterName!=""` 
+
    **Add below**: `@opacity = $Trainer.get_opacity`
 
 #### PField_Field
 
 1. **Search**: `repel = ($PokemonGlobal.repel>0)`
+
    **Add below**: `$Trainer.process_hidden_status`
 1. **Search**: `return if $Trainer.ablePokemonCount==0`
+
    **Add below**: `return if $Trainer.hidden?`
 
 #### PField_Field_Moves
 
 1. **Search**: `def self.triggerConfirmUseMove(item,pokemon)`
+
    **Add below**: `return false if !Shadow_Utilities.confirm_field_movement`
+
 1. **Search**: `def Kernel.pbConfirmUseHiddenMove(pokemon,move)`
+
    **Add below**: `return false if $Trainer.hidden? && !Shadow_Utilities.prompt_for_unhide`
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?")) \`
      && Shadow_Utilities.confirm_field_movement
    ```
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("A Pokémon could be in this tree. Would you like to use Headbutt?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL(
        "A Pokémon could be in this tree. Would you like to use Headbutt?"
      )) && Shadow_Utilities.confirm_field_movement
    ```
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("This rock appears to be breakable. Would you like to use Rock Smash?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL(
        "This rock appears to be breakable. Would you like to use Rock Smash?"
      )) && Shadow_Utilities.confirm_field_movement
    ```
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?")) \
      && Shadow_Utilities.confirm_field_movement
    ```
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("The water is a deep blue...\nWould you like to surf on it?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL(
        "The water is a deep blue...\nWould you like to surf on it?"
      )) && Shadow_Utilities.confirm_field_movement
    ```
+
 1. **Search**: `if Kernel.pbConfirmMessage(_INTL("It's a large waterfall. Would you like to use Waterfall?"))`
+
    **Replace with**:
    ```
      if Kernel.pbConfirmMessage(_INTL(
@@ -115,18 +146,22 @@ SHADOW_CHARSET_SUFFIX = '_shadow'
 #### PokeBattle_Trainer
 
 1. **Search**: `attr_accessor(:language)`
+
    **Add below**:
    ```
      attr_accessor(:hidden_status)
      attr_accessor(:shadow_points)
      attr_accessor(:shadow_recovery_count)
    ```
+
 1. **Search**: `@party=[]`
+
    **Add below**: `self.set_shadow_default_values`
 
 #### PScreen_PauseMenu
 
 1. **Search**: `commands[cmdSave = commands.length]   = _INTL("Save") if $game_system && !$game_system.save_disabled`
+
    **Add below**:
    ```
          if $Trainer.hidden?
@@ -146,7 +181,8 @@ SHADOW_CHARSET_SUFFIX = '_shadow'
 #### PScreen_Load
 
 1. **Search**: `@sprites["player"].src_rect = Rect.new(0,0,charwidth/4,charheight/4)`
-1. **Add below**: `@sprites["player"].opacity = trainer.get_opacity`
+
+   **Add below**: `@sprites["player"].opacity = trainer.get_opacity`
 
 
 ## Usage
