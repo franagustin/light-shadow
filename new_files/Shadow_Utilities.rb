@@ -25,6 +25,7 @@ class Shadow_Utilities
   end
 
   def self.star_hide(steps=SHADOW_POINTS, no_rehide=true)
+    hid = false
     if Kernel.pbConfirmMessage(_INTL("Want to hide in them?"))
       if $Trainer.hidden? && no_rehide
         Kernel.pbMessage(_INTL("You are already hidden."))
@@ -32,8 +33,10 @@ class Shadow_Utilities
         Kernel.pbMessage(_INTL("You haven't got enough shadow power."))
       else
         $Trainer.hide steps
+        hid = true
       end
     end
+    return hid
   end
 
   def self.trigger_while_hidden?(event)

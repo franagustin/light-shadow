@@ -166,7 +166,6 @@ class Game_Player < Game_Character
       if pbEventFacesPlayer?(event,self,distance) and triggers.include?(event.trigger)
           # If starting determinant is front event (other than jumping)
         if not event.jumping? and not event.over_trigger?
-          return result if !Shadow_Utilities.trigger_while_hidden?(event)
           result.push(event)
         end
       end
@@ -196,7 +195,6 @@ class Game_Player < Game_Character
     for event in $game_map.events.values
       if event.x == new_x and event.y == new_y
         if not event.jumping? and not event.over_trigger?
-          return result if !Shadow_Utilities.trigger_while_hidden?(event)
           return event
         end
       end
@@ -207,7 +205,6 @@ class Game_Player < Game_Character
       for event in $game_map.events.values
         if event.x == new_x and event.y == new_y
           if not event.jumping? and not event.over_trigger?
-            return result if !Shadow_Utilities.trigger_while_hidden?(event)
             return event
           end
         end
@@ -307,6 +304,7 @@ class Game_Player < Game_Character
       if event.x == @x and event.y == @y and triggers.include?(event.trigger)
         # If starting determinant is same position event (other than jumping)
         if not event.jumping? and event.over_trigger?
+          return result if !Shadow_Utilities.trigger_while_hidden?(event)
           event.start
           result = true
         end
@@ -332,6 +330,7 @@ class Game_Player < Game_Character
       if event.x == new_x and event.y == new_y and triggers.include?(event.trigger)
         # If starting determinant is front event (other than jumping)
         if not event.jumping? and !event.over_trigger?
+          return result if !Shadow_Utilities.trigger_while_hidden?(event)
           event.start
           result = true
         end
@@ -351,6 +350,7 @@ class Game_Player < Game_Character
              triggers.include?(event.trigger)
             # If starting determinant is front event (other than jumping)
             if not event.jumping? and !event.over_trigger?
+              return result if !Shadow_Utilities.trigger_while_hidden?(event)
               event.start
               result = true
             end
@@ -481,7 +481,9 @@ def pbGetPlayerCharset(meta,charset,trainer=nil)
   outfit=trainer ? trainer.outfit : 0
   ret=meta[charset]
   ret=meta[1] if !ret || ret==""
-  ret += SHADOW_CHARSET_SUFFIX if trainer.hidden?
+  ret += SHADOW_CHARSET_SUFFIX if trainer.hidden? && pbResolveBitmap(
+    "Graphics/Characters/"+ret+SHADOW_CHARSET_SUFFIX
+  )
   if pbResolveBitmap("Graphics/Characters/"+ret+"_"+outfit.to_s)
     ret=ret+"_"+outfit.to_s
   end
@@ -512,7 +514,7 @@ end
 
 def pbCanUseBike?(mapid)
   return true if pbGetMetadata(mapid,MetadataBicycleAlways)
-  val = !Trainer.hidden?
+  val = !$Trainer.hidden?
   val = pbGetMetadata(mapid,MetadataBicycle)
   val = pbGetMetadata(mapid,MetadataOutdoor) if val==nil
   return (val) ? true : false 

@@ -38,6 +38,7 @@ class Game_Player
   def character_name
     @defaultCharacterName = "" if !@defaultCharacterName
     return @defaultCharacterName if @defaultCharacterName!=""
+    @opacity = $Trainer.get_opacity
     if !@move_route_forcing && $PokemonGlobal && $PokemonGlobal.playerID>=0
       meta = pbGetMetadata(0,MetadataPlayerA+$PokemonGlobal.playerID)
       if meta && !$PokemonGlobal.bicycle && !$PokemonGlobal.diving && !$PokemonGlobal.surfing

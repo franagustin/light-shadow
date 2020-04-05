@@ -1,7 +1,28 @@
-# Instructions
+# Shadow System
 
-1. Create these files in RPG Maker XP's script editor and copy their content.
-1. Insert following lines at the end of Settings:
+With this shadow system, you can avoid both trainer and wild battles by hiding in shadows.
+
+## New Files
+
+1. Create two new files in RPG Maker XP's script editor names:
+  * PokeBattle_Trainer_Shadow
+  * Shadow_Utilities
+1. Copy the content of this files from within **new_files** folder and paste them at the script editor.
+
+## Edited Files
+
+### Blank Project
+
+If you haven't edited any of the files which name matches those inside **edited_files** folder, just copy and paste their content at the script editor (each one on the tab they are named after).
+
+
+### Edited Project
+
+For any file you have already changed, you can install this system by adding or replacing the following lines.
+
+#### Settings
+
+1. **Insert following lines at the end**
 ```
 #===============================================================================
 # * Set $Trainer.hidden_status to number of steps or just active/inactive?
@@ -14,86 +35,146 @@ SHADOW_RECOVERY_RATE = 5
 SHADOW_POINTS = 100
 SHADOW_CHARSET_SUFFIX = '_shadow'
 ```
-1. Search inside Game_Player for all lines matching
-`if not event.jumping? and not event.over_trigger?`
-and add right after it the following one:
-`return result if !Shadow_Utilities.trigger_while_hidden?(event)`
-except the one in **pbTriggeredTrainerEvents** method.
-1. Search for `if not event.jumping? and not event.over_trigger?` in **pbTriggeredTrainerEvents** method and replace it with:
-`if not event.jumping? and not event.over_trigger? and not $Trainer.hidden?`
-1. Search in Game_Player for this line: `ret=meta[1] if !ret || ret==""`
-add right after it the following one: `ret += SHADOW_CHARSET_SUFFIX if trainer.hidden?`
-1. In Game_Player find the following line:
-`return true if pbGetMetadata(mapid,MetadataBicycleAlways)`
-and add this one after it: `val = !$Trainer.hidden?`
-1. Search for `pbMapInterpreterRunning?` in Game_Player_Visuals and replace that line with: `pbMapInterpreterRunning? || $Trainer.hidden?`
-1. Search for `repel = ($PokemonGlobal.repel>0)` in PField_Field and add the following line right below it: `$Trainer.process_hidden_status`
-1. In PField_FieldMoves search for `def self.triggerConfirmUseMove(item,pokemon)` and add this after it: `return false if !Shadow_Utilities.confirm_field_movement`
-1. In PField_FieldMoves find `def Kernel.pbConfirmUseHiddenMove(pokemon,move)` and add this right below it: `return false if $Trainer.hidden? && !Shadow_Utilities.prompt_for_unhide`
-1. In PField_FieldMoves replace:
-* `if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?"))`
+
+#### Game_Player
+
+1. **Search**: `if not event.jumping? and event.over_trigger?`
+   **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+1. **Find both occurrences of**: `if not event.jumping? and !event.over_trigger?`
+   **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+1. **Search just in method named check_event_trigger_touch**: `if not event.jumping? and not event.over_trigger?`
+   **Add below**: `return result if !Shadow_Utilities.trigger_while_hidden?(event)`
+1. **Search just in method called pbTriggeredTrainerEvents**: `if not event.jumping? and not event.over_trigger?`
+   **Replace with**: `if not event.jumping? and not event.over_trigger? and not $Trainer.hidden?`
+1. **Search**: `ret=meta[1] if !ret || ret==""`
+   **Add below**: `ret += SHADOW_CHARSET_SUFFIX if trainer.hidden?`
+1. **Search**: `return true if pbGetMetadata(mapid,MetadataBicycleAlways)`
+   **Add below**: `val = !$Trainer.hidden?`
+
+#### Game_Player_Visuals
+
+1. **Search**: `pbMapInterpreterRunning?`
+   **Replace with**: `pbMapInterpreterRunning? || $Trainer.hidden?`
+1. **Search**: `return @defaultCharacterName if @defaultCharacterName!=""` 
+   **Add below**: `@opacity = $Trainer.get_opacity`
+
+#### PField_Field
+
+1. **Search**: `repel = ($PokemonGlobal.repel>0)`
+   **Add below**: `$Trainer.process_hidden_status`
+1. **Search**: `return if $Trainer.ablePokemonCount==0`
+   **Add below**: `return if $Trainer.hidden?`
+
+#### PField_Field_Moves
+
+1. **Search**: `def self.triggerConfirmUseMove(item,pokemon)`
+   **Add below**: `return false if !Shadow_Utilities.confirm_field_movement`
+1. **Search**: `def Kernel.pbConfirmUseHiddenMove(pokemon,move)`
+   **Add below**: `return false if $Trainer.hidden? && !Shadow_Utilities.prompt_for_unhide`
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?")) \`
+     && Shadow_Utilities.confirm_field_movement
+   ```
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("A Pokémon could be in this tree. Would you like to use Headbutt?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL(
+       "A Pokémon could be in this tree. Would you like to use Headbutt?"
+     )) && Shadow_Utilities.confirm_field_movement
+   ```
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("This rock appears to be breakable. Would you like to use Rock Smash?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL(
+       "This rock appears to be breakable. Would you like to use Rock Smash?"
+     )) && Shadow_Utilities.confirm_field_movement
+   ```
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?")) \
+     && Shadow_Utilities.confirm_field_movement
+   ```
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("The water is a deep blue...\nWould you like to surf on it?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL(
+       "The water is a deep blue...\nWould you like to surf on it?"
+     )) && Shadow_Utilities.confirm_field_movement
+   ```
+1. **Search**: `if Kernel.pbConfirmMessage(_INTL("It's a large waterfall. Would you like to use Waterfall?"))`
+   **Replace with**:
+   ```
+     if Kernel.pbConfirmMessage(_INTL(
+       "It's a large waterfall. Would you like to use Waterfall?"
+     )) && Shadow_Utilities.confirm_field_movement
+   ```
+
+#### PokeBattle_Trainer
+
+1. **Search**: `attr_accessor(:language)`
+   **Add below**:
+   ```
+     attr_accessor(:hidden_status)
+     attr_accessor(:shadow_points)
+     attr_accessor(:shadow_recovery_count)
+   ```
+1. **Search**: `@party=[]`
+   **Add below**: `self.set_shadow_default_values`
+
+#### PScreen_PauseMenu
+
+1. **Search**: `commands[cmdSave = commands.length]   = _INTL("Save") if $game_system && !$game_system.save_disabled`
+   **Add below**:
+   ```
+         if $Trainer.hidden?
+           if SHADOW_BY_STEPS
+             @scene.pbShowInfo(_INTL(
+               "Shadow Points: {1}/{2}\nRemaining steps: {3}",
+               $Trainer.shadow_points, SHADOW_POINTS, $Trainer.hidden_status
+             ))
+           else
+             @scene.pbShowInfo(_INTL(
+               "Shadow Points {1}/{2}", $Trainer.shadow_points, SHADOW_POINTS
+             ))
+           end
+         end
+   ```
+
+#### PScreen_Load
+
+1. **Search**: `@sprites["player"].src_rect = Rect.new(0,0,charwidth/4,charheight/4)`
+1. **Add below**: `@sprites["player"].opacity = trainer.get_opacity`
+
+
+## Usage
+
+You can now use **$Trainer.hide steps (optional)**, **$Trainer.unhide** and **$Trainer.hidden?** in your own scripts or events.
+
+
+# Light System
+
+The light system is just a random item giver, you can set the items you want together with the chances of receiving each one.
+
+## Installation
+
+1. Insert a new tab at RPG Maker XP's script editor and paste there the contents of the **Light_Item.rb** file, which can be found inside **new_files** folder.
+
+## Usage
+
+You may use it in an event or a script just like this:
+
 ```
-  if Kernel.pbConfirmMessage(_INTL("Would you like to cut it?")) \`
-  && Shadow_Utilities.confirm_field_movement
+@li = Light_Item.new({
+  :POTION => 30,
+  :SUPERPOTION => 20,
+  :HYPERPOTION => 10,
+  :MAXPOTION => 1
+})
+@given = @li.sun_crest
 ```
 
-* `if Kernel.pbConfirmMessage(_INTL("A Pokémon could be in this tree. Would you like to use Headbutt?"))`
-```
-  if Kernel.pbConfirmMessage(_INTL(
-    "A Pokémon could be in this tree. Would you like to use Headbutt?"
-  )) && Shadow_Utilities.confirm_field_movement
-```
-
-* `if Kernel.pbConfirmMessage(_INTL("This rock appears to be breakable. Would you like to use Rock Smash?"))`
-```
-  if Kernel.pbConfirmMessage(_INTL(
-    "This rock appears to be breakable. Would you like to use Rock Smash?"
-  )) && Shadow_Utilities.confirm_field_movement
-```
-
-* `if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?"))`
-```
-  if Kernel.pbConfirmMessage(_INTL("Would you like to use Strength?")) \
-  && Shadow_Utilities.confirm_field_movement
-```
-
-* `if Kernel.pbConfirmMessage(_INTL("The water is a deep blue...\nWould you like to surf on it?"))`
-```
-  if Kernel.pbConfirmMessage(_INTL(
-    "The water is a deep blue...\nWould you like to surf on it?"
-  )) && Shadow_Utilities.confirm_field_movement
-```
-
-* `if Kernel.pbConfirmMessage(_INTL("It's a large waterfall. Would you like to use Waterfall?"))`
-```
-  if Kernel.pbConfirmMessage(_INTL(
-    "It's a large waterfall. Would you like to use Waterfall?"
-  )) && Shadow_Utilities.confirm_field_movement
-```
-
-1. In PokeBattle_Trainer find `attr_accessor(:language)` and add the following lines after it:
-```
-  attr_accessor(:hidden_status)
-  attr_accessor(:shadow_points)
-  attr_accessor(:shadow_recovery_count)
-```
-
-1. In PokeBattle_Trainer find `@party=[]` and add below it: `self.set_shadow_default_values`
-
-1. In PScreen_PauseMenu search for `commands[cmdSave = commands.length]   = _INTL("Save") if $game_system && !$game_system.save_disabled` and add below:
-```
-      if $Trainer.hidden?
-        if SHADOW_BY_STEPS
-          @scene.pbShowInfo(_INTL(
-            "Shadow Points: {1}/{2}\nRemaining steps: {3}",
-            $Trainer.shadow_points, SHADOW_POINTS, $Trainer.hidden_status
-          ))
-        else
-          @scene.pbShowInfo(_INTL(
-            "Shadow Points {1}/{2}", $Trainer.shadow_points, SHADOW_POINTS
-          ))
-        end
-      end
-```
-
-1. Search for `@sprites["player"].src_rect = Rect.new(0,0,charwidth/4,charheight/4)` in PScreen_Load and add this line after it: `@sprites["player"].opacity = 150 if trainer.hidden? else 255`
+* **Remaining percentage will be the chances of receiving nothing**
+* **@given will be true if the item is chosen, even if you receive nothing.**
