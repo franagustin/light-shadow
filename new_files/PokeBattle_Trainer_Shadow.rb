@@ -6,7 +6,6 @@ class PokeBattle_Trainer
 
   def hide(steps=SHADOW_POINTS)
     val = SHADOW_BY_STEPS ? steps : true
-    print @shadow_points
     @hidden_status = val if !@shadow_points.nil? && @shadow_points > 0
     Shadow_Utilities.check_player_charset
   end
